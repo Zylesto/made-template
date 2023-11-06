@@ -14,19 +14,21 @@ The analysis helps to do correlate food prices in the world with the temperature
 
 <!-- Describe each datasources you plan to use in a section. Use the prefic "DatasourceX" where X is the id of the datasource. -->
 
-### Datasource1: Kaggle
+### Datasource1: World Bank
 
-- Metadata URL 1: https://www.kaggle.com/datasets/anshtanwar/monthly-food-price-estimates
-- Data URL 1: https://www.kaggle.com/datasets/anshtanwar/monthly-food-price-estimates/download?datasetVersionNumber=3
+- Metadata URL 1: https://microdata.worldbank.org/index.php/catalog/4509/pdf-documentation
+- Data URL 1: https://microdata.worldbank.org/index.php/catalog/4509/download/65297
 - Data Type: CSV
-  Global Food Price Estimates and Inflation by Product, Market, and Country
+
+Monthly food price inflation estimates by 25 Countries
 
 ### Datasource2: FAOSTAT
 
 - Metadata URL 2: http://www.fao.org/faostat/en/#data/ET/metadata
 - Data URL 2: https://fenixservices.fao.org/faostat/static/bulkdownloads/Environment_Temperature_change_E_All_Data.zip
 - Data Type: CSV
-  The FAOSTAT Temperature Change Data
+
+The FAOSTAT Temperature Data
 
 ## Work Packages
 
