@@ -1,7 +1,7 @@
 # Execute the data pipeline
-python ./main/project/AutoPipeLine.py
+python AutoPipeLine.py
 
-data_file="./main/data/zylesto.sqlite"
+data_file="../data/zylesto.sqlite"
 
 
 # Check if the output file exists
