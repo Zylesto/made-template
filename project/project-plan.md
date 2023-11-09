@@ -20,7 +20,7 @@ The analysis trys to establish a correlation between global food prices and chan
 - Licensing type: Open Data
 - Citation: Andrée, B. P. J. (2021). Monthly food price inflation estimates by country (Version 2023-10-23). WLD_2021_RTFP-CTRY_v02_M. Washington, DC: World Bank Microdata Library.
 
-Monthly food price inflation estimates by 25 Countries
+Monthly food price inflation estimates by country (25 countries provided)
 
 ### Datasource 2: FAOSTAT
 
@@ -29,7 +29,7 @@ Monthly food price inflation estimates by 25 Countries
 - Data Type: CSV
 - Licensing type: [CC BY-NC-SA 3.0 IGO](https://creativecommons.org/licenses/by-nc-sa/3.0/igo/)
 
-The FAOSTAT Temperature Data
+Mean surface change of temperature by country
 
 ## Work Packages
 
