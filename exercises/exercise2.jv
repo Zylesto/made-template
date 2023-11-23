@@ -1,9 +1,45 @@
-pipeline TrainStationDataPipeline {
+valuetype TrafficType oftype text {
+    constraints: [ TrafficTypeConstraint ];
+}
 
+constraint TrafficTypeConstraint oftype AllowlistConstraint {
+    allowlist: [ "FV", "RV", "nur DPN" ];
+}
+
+valuetype Longitude oftype decimal {
+    constraints: [ LongitudeRange ];
+}
+
+constraint LongitudeRange oftype RangeConstraint {
+    lowerBound: -90;
+    lowerBoundInclusive: true;
+    upperBound: 90;
+    upperBoundInclusive: true;
+}
+
+valuetype Latitude oftype decimal {
+    constraints: [ LatitudeRange ];
+}
+
+constraint LatitudeRange oftype RangeConstraint {
+    lowerBound: -90;
+    lowerBoundInclusive: true;
+    upperBound: 90;
+    upperBoundInclusive: true;
+}
+
+valuetype IFOPT oftype text {
+    constraints: [ IFOPTConstraint ];
+}
+
+constraint IFOPTConstraint oftype RegexConstraint {
+  regex: /^[a-zA-Z]{2}:\d+:\d+(?::\d+)?$/;
+}
+
+pipeline TrainStationDataPipeline {
     block CSVDataExtractor oftype CSVExtractor {
         url: "https://download-data.deutschebahn.com/static/datasets/haltestellen/D_Bahnhof_2020_alle.CSV";
-        delimiter: ",";
-        enclosing: '"';
+        delimiter: ";";
     }
 
     block DataTableInterpreter oftype TableInterpreter {
@@ -11,11 +47,11 @@ pipeline TrainStationDataPipeline {
         columns: [
             "EVA_NR" oftype integer,
             "DS100" oftype text,
-            "IFOPT" oftype IFOPTVariant,
+            "IFOPT" oftype IFOPT,
             "NAME" oftype text,
-            "Verkehr" oftype TrafficTypeVariant,
-            "Laenge" oftype TrafficTypeVariant,
-            "Breite" oftype GeometricDecimalVariant,
+            "Verkehr" oftype TrafficType,
+            "Laenge" oftype Longitude,
+            "Breite" oftype Latitude,
             "Betreiber_Name" oftype text,
             "Betreiber_Nr" oftype integer,
         ];
@@ -23,35 +59,8 @@ pipeline TrainStationDataPipeline {
 
     block SQLiteDataLoader oftype SQLiteLoader {
         table: "trainstops";
-        file: "trainstops.sqlite";
+        file: "./trainstops.sqlite";
     }
 
     CSVDataExtractor -> DataTableInterpreter -> SQLiteDataLoader;
-}
-
-valuetype TrafficTypeVariant oftype text {
-    constraints: [ TrafficTypeConstraint ];
-}
-
-valuetype GeometricDecimalVariant oftype decimal {
-    constraints: [ GeometricRangeConstraint ];
-}
-
-valuetype IFOPTVariant oftype text {
-    constraints: [ IFOPTPatternConstraint ];
-}
-
-constraint TrafficTypeConstraint oftype AllowlistConstraint {
-    allowlist: ["FV", "RV", "nur DPN"];
-}
-
-constraint IFOPTPatternConstraint oftype RegexConstraint {
-    regex: /^[a-zA-Z]{2}:\d+:\d+(?::\d+)?$/;
-}
-
-constraint GeometricRangeConstraint oftype RangeConstraint {
-    lowerBound: -90;
-    upperBound: 90;
-    lowerBoundInclusive: true;
-    upperBoundInclusive: true;
 }
