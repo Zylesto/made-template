@@ -1,65 +1,69 @@
-valuetype TrafficType oftype text {
-    constraints: [ TrafficTypeConstraint ];
+valuetype Verkehr oftype text {
+    constraints: [ VerkehrConstraint ];
 }
 
-constraint TrafficTypeConstraint oftype AllowlistConstraint {
-    allowlist: [ "FV", "RV", "nur DPN" ];
+valuetype Laenge oftype decimal {
+    constraints: [ LaengeConstraint ];
 }
 
-valuetype Longitude oftype decimal {
-    constraints: [ LongitudeRange ];
-}
-
-constraint LongitudeRange oftype RangeConstraint {
-    lowerBound: -90;
-    lowerBoundInclusive: true;
-    upperBound: 90;
-    upperBoundInclusive: true;
-}
-
-valuetype Latitude oftype decimal {
-    constraints: [ LatitudeRange ];
-}
-
-constraint LatitudeRange oftype RangeConstraint {
-    lowerBound: -90;
-    lowerBoundInclusive: true;
-    upperBound: 90;
-    upperBoundInclusive: true;
+valuetype Breite oftype decimal {
+    constraints: [ BreiteConstraint ];
 }
 
 valuetype IFOPT oftype text {
     constraints: [ IFOPTConstraint ];
 }
 
+constraint VerkehrConstraint oftype AllowlistConstraint {
+    allowlist: [ "FV", "RV", "nur DPN" ];
+}
+
+constraint LaengeConstraint oftype RangeConstraint {
+    lowerBound: -90;
+    lowerBoundInclusive: true;
+    upperBound: 90;
+    upperBoundInclusive: true;
+}
+
+constraint BreiteConstraint oftype RangeConstraint {
+    lowerBound: -90;
+    lowerBoundInclusive: true;
+    upperBound: 90;
+    upperBoundInclusive: true;
+}
+
 constraint IFOPTConstraint oftype RegexConstraint {
   regex: /^[a-zA-Z]{2}:\d+:\d+(?::\d+)?$/;
 }
 
-pipeline TrainStationDataPipeline {
-    block CSVDataExtractor oftype CSVExtractor {
+pipeline StationDataPipeline {
+    block StationDataDownloader oftype HttpExtractor {
         url: "https://download-data.deutschebahn.com/static/datasets/haltestellen/D_Bahnhof_2020_alle.CSV";
-        delimiter: ";";
     }
 
-    block DataTableInterpreter oftype TableInterpreter {
+    block TextFileInterpreter oftype TextFileInterpreter {}
+    block CSVFormatInterpreter oftype CSVInterpreter { delimiter: ";"; }
+
+    block StationDataTableInterpreter oftype TableInterpreter {
         header: true;
         columns: [
             "EVA_NR" oftype integer,
             "DS100" oftype text,
             "IFOPT" oftype IFOPT,
             "NAME" oftype text,
-            "Verkehr" oftype TrafficType,
-            "Laenge" oftype Longitude,
-            "Breite" oftype Latitude,
+            "Verkehr" oftype Verkehr,
+            "Laenge" oftype Laenge,
+            "Breite" oftype Breite,
             "Betreiber_Name" oftype text,
             "Betreiber_Nr" oftype integer,
         ];
     }
 
-block SQLiteDataLoader oftype SQLiteLoader {
+    block StationDatabaseLoader oftype SQLiteLoader { table: "trainstops"; file: "trainstops.sqlite"; }
 
-table: "trainstops"; file: "../trainstops.sqlite"; }
-
-    CSVDataExtractor -> DataTableInterpreter -> SQLiteDataLoader;
+    StationDataDownloader
+        -> TextFileInterpreter
+        -> CSVFormatInterpreter
+        -> StationDataTableInterpreter
+        -> StationDatabaseLoader;
 }
