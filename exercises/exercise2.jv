@@ -57,10 +57,9 @@ pipeline TrainStationDataPipeline {
         ];
     }
 
-    block SQLiteDataLoader oftype SQLiteLoader {
-        table: "trainstops";
-        file: "./trainstops.sqlite";
-    }
+block SQLiteDataLoader oftype SQLiteLoader {
+
+table: "trainstops"; file: "../trainstops.sqlite"; }
 
     CSVDataExtractor -> DataTableInterpreter -> SQLiteDataLoader;
 }
