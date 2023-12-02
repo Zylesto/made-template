@@ -1,7 +1,12 @@
 import pandas as pd
-import sqlalchemy
-import requests
+from sqlalchemy import create_engine, Integer, String
 from io import StringIO
+import urllib.request
+
+
+def download_csv(url):
+    response = urllib.request.urlopen(url)
+    return response.read().decode('ISO-8859-1')
 
 
 def process_data(csv_content):
@@ -20,24 +25,25 @@ def process_data(csv_content):
 
 
 def save_to_database(df):
-    engine = sqlalchemy.create_engine('sqlite:///cars.sqlite')
+    engine = create_engine('sqlite:///cars.sqlite')
     column_types = {
-        'date': sqlalchemy.String(20),
-        'CIN': sqlalchemy.String(255),
-        'name': sqlalchemy.String(255),
-        'petrol': sqlalchemy.Integer,
-        'diesel': sqlalchemy.Integer,
-        'gas': sqlalchemy.Integer,
-        'electro': sqlalchemy.Integer,
-        'hybrid': sqlalchemy.Integer,
-        'plugInHybrid': sqlalchemy.Integer,
-        'others': sqlalchemy.Integer
+        'date': String,
+        'CIN': String,
+        'name': String,
+        'petrol': Integer,
+        'diesel': Integer,
+        'gas': Integer,
+        'electro': Integer,
+        'hybrid': Integer,
+        'plugInHybrid': Integer,
+        'others': Integer
     }
 
     df.to_sql(con=engine, name='cars', if_exists='replace', index=False, dtype=column_types)
 
 
-csv_content = requests.get('https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv').text
+url = 'https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv'
+csv_content = download_csv(url)
 
 df = process_data(csv_content)
 
