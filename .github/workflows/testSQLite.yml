@@ -1,4 +1,4 @@
-name: Run test.sh on Push
+name: Test SQLite
 
 on:
   push:
@@ -8,11 +8,20 @@ on:
       - 'project/**'
 
 jobs:
-  job1:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
       - name: Run test script
         run: |
           chmod +x ./project/test.sh
           ./project/test.sh
+
