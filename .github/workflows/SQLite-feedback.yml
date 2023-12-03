@@ -1,18 +1,19 @@
-name: Test SQLite
+name: Exercise Test Pipeline
 
 on:
   push:
+    paths:
+      - 'data/**'
+      - 'project/**'
     branches:
       - main
-    paths:
-      - 'project/**'
 
 jobs:
-  build:
+  run:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Check out code
         uses: actions/checkout@v2
 
       - name: Set up Python 3.11
@@ -20,8 +21,7 @@ jobs:
         with:
           python-version: 3.11
 
-      - name: Run test script
+      - name: Run file
         run: |
           chmod +x ./project/test.sh
           ./project/test.sh
-
