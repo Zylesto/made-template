@@ -1,0 +1,14 @@
+name: Run test.sh on Push
+
+on: [push]
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run test script
+      run: |
+        chmod +x ./project/test.sh
+        ./project/test.sh
