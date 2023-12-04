@@ -1,4 +1,5 @@
 #!/bin/bash
+python test.py
 python pipeline.py
 
 data_file="../data/zylesto.sqlite"
@@ -23,6 +24,7 @@ is_valid_sqlite_file() {
     fi
 }
 
+# This method should work as a "System Test"
 is_valid_sqlite_file
 
 
