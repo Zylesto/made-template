@@ -1,0 +1,31 @@
+name: Project Tests
+
+on:
+  push:
+    paths:
+      - 'data/**'
+      - 'project/**'
+    branches:
+      - main
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout-Code
+        uses: actions/checkout@v2
+      
+      - name: Set Up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies
+        run: |
+          # Fügen Sie hier die Befehle zum Installieren der erforderlichen Python-Abhängigkeiten ein
+
+      - name: Execute tests.sh
+        run: |
+          chmod +x ./project/tests.sh
+          ./project/tests.sh
