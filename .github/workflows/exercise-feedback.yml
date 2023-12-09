@@ -9,19 +9,19 @@ on:
       - main
 
 jobs:
-  run-tests:
+  run:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout-Code
-        uses: actions/checkout@v2
+      - name: Check out code
+        uses: actions/checkout@v3
 
-      - name: Set Up Python
-        uses: actions/setup-python@v2
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+            python-version: 3.11
 
-      - name: Execute tests.sh
+      - name: Run file
         run: |
-          chmod +x project/tests.sh  # Ändern Sie den Pfad hier entsprechend
-          ./project/tests.sh
+          chmod +x ./project/test.sh
+          ./project/test.sh
