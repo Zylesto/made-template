@@ -26,25 +26,27 @@ def save_to_sqlite(df, table_name, db_url='sqlite:///../data/zylesto.sqlite'):
 
 #############################################################################################################
 
-url2 = 'https://microdata.worldbank.org/index.php/catalog/4509/download/67079'
-df2 = download_zip_content(url2, headers={'User-Agent': 'Mozilla/5.0'})
-save_to_sqlite(df2, 'food_price_inflation')
+#This URL has become unavailable during my project work, for the GitHub-Workflow i have disabled downloading and testing it
+
+#url2 = 'https://microdata.worldbank.org/index.php/catalog/4509/download/67079'
+#df2 = download_zip_content(url2, headers={'User-Agent': 'Mozilla/5.0'})
+#save_to_sqlite(df2, 'food_price_inflation')
 
 # get data from food_price_inflation table
-food_df = pd.read_sql_table('food_price_inflation', 'sqlite:///../data/zylesto.sqlite')
+#food_df = pd.read_sql_table('food_price_inflation', 'sqlite:///../data/zylesto.sqlite')
 
 # extract month and year from the data column
-food_df['date'] = pd.to_datetime(food_df['date'])
-food_df['Months'] = food_df['date'].dt.month_name()
-food_df['Year'] = food_df['date'].dt.year
+#food_df['date'] = pd.to_datetime(food_df['date'])
+#food_df['Months'] = food_df['date'].dt.month_name()
+#food_df['Year'] = food_df['date'].dt.year
 
 # keep only relevant columns
-food_df = food_df[['Inflation', 'country', 'Months', 'Year']]
-food_df = food_df.rename(columns={'country': 'Area'})
+#food_df = food_df[['Inflation', 'country', 'Months', 'Year']]
+#food_df = food_df.rename(columns={'country': 'Area'})
 
 # remove the rows that contains missing values
-food_df = food_df.dropna()
-food_df
+#food_df = food_df.dropna()
+#food_df
 
 #############################################################################################################
 
@@ -67,7 +69,7 @@ for yr in yrs:
     temp_df = temp_df.drop(f'Y{yr}F', axis=1)
 
 # keep only those countries that are present in the food dataset
-temp_df = temp_df[temp_df['Area'].isin(food_df['country'].unique())]
+#temp_df = temp_df[temp_df['Area'].isin(food_df['country'].unique())]
 
 # keep only monthly data
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
