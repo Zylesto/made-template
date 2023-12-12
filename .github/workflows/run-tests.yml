@@ -21,7 +21,14 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas pytest requests
+        
+
       - name: Execute tests.sh
         run: |
-          chmod +x ./project/tests.sh
-          ./project/tests.sh
+          chmod u+r+x ./project/test.sh
+          cd ./project
+          ./test.sh

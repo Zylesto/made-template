@@ -1,6 +1,3 @@
 #!/bin/bash
-python pipeline.py
-python test.py
-
-
-
+python ./pipeline.py
+python ./test.py
