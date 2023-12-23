@@ -16,7 +16,7 @@ In this report, I explore the following key topics:
 - How Are Temperature Changes Correlated with Food Price Inflation?
 - An Analysis of the Correlation Between Temperature Change and Food Price Inflation in Individual Countries
 
-I warmly invite you to explore the results and insights of my project [here](https://github.com/Zylesto/made-template/blob/main/project/report.ipynb).
+I warmly invite you to explore the results and insights of my project [here](https://github.com/Zylesto/made-template/blob/main/project/report.ipynb). You can find the presentation [here](https://github.com/Zylesto/made-template/blob/main/project/presentation-video.mp4) and the corresponding slides [here](https://github.com/Zylesto/made-template/blob/main/project/slides.pdf).
 
 ### Exporting a Jupyter Notebook
 Jupyter Notebooks can be exported using `nbconvert` (`pip install nbconvert`). For example, to export the example notebook to html: `jupyter nbconvert --to html examples/final-report-example.ipynb --embed-images --output final-report.html`
