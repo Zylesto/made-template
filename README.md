@@ -12,9 +12,9 @@ I will be examining how temperature and food prices inflation have evolved over 
 
 In this report, I explore the following key topics:
 
-How Have Temperature Changes and Food Price Inflation Varied Over the Years?
-How Are Temperature Changes Correlated with Food Price Inflation?
-An Analysis of the Correlation Between Temperature Change and Food Price Inflation in Individual Countries
+- How Have Temperature Changes and Food Price Inflation Varied Over the Years?
+- How Are Temperature Changes Correlated with Food Price Inflation?
+- An Analysis of the Correlation Between Temperature Change and Food Price Inflation in Individual Countries
 
 I warmly invite you to explore the results and insights of my project [here](https://github.com/Zylesto/made-template/blob/main/project/report.ipynb).
 
