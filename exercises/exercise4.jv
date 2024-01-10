@@ -1,0 +1,90 @@
+transform TemperatureConversion {
+  from celsiusTemperature oftype number;
+  to fahrenheitTemperature oftype number;
+
+  fahrenheitTemperature: (celsiusTemperature * 9/5) + 32;
+}
+
+constraint ValidMonthRange oftype IntervalConstraint {
+    minimumValue: 1;
+    maximumValue: 12;
+}
+
+valuetype MonthIndex oftype integer {
+    restrictions: [ValidMonthRange];
+}
+
+constraint AcceptableGermanAnswers oftype SelectionConstraint {
+    permittedValues: ["Ja", "Nein"];
+}
+
+valuetype DeviceStatus oftype string {
+    restrictions: [AcceptableGermanAnswers];
+}
+
+pipeline DataProcessingPipeline {
+    block RetrieveData oftype WebRetrieval {
+        downloadLink: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
+    }
+
+    block DecompressData oftype UnzipHandler {
+        zipFormat: "zip";
+    }
+
+    block LocateCSVFile oftype FileSelection {
+        relativePath: "data.csv";
+    }
+
+    block ParseTextData oftype TextDataParser {}
+    block InterpretCSVData oftype CSVParser { separator: ';';}
+
+    block SelectDataColumns oftype ColumnRangeSelector {
+        columnsToSelect: range A1:G*;
+    }
+
+    block ExcludeColumns oftype ColumnExclusion {
+        columnsToRemove: [column H, column I, column J, column K];
+    }
+
+    block SetupDataTable oftype DataTableConfiguration {
+        includeHeader: false;
+        dataTableStructure: [
+            "DeviceID" oftype integer,
+            "ManufacturerName" oftype string,
+            "ModelType" oftype string,
+            "UsageMonth" oftype MonthIndex,
+            "EnvironmentTemp" oftype number,
+            "BatteryTemp" oftype number,
+            "IsDeviceActive" oftype DeviceStatus,
+        ];
+    }
+
+    block EnvironmentTemperatureConversion oftype DataConversion {
+        sourceColumn: "EnvironmentTemp";
+        targetColumn: "EnvironmentTemp";
+        conversionMethod: TemperatureConversion;
+    }
+
+    block DeviceBatteryTemperatureConversion oftype DataConversion {
+        sourceColumn: "BatteryTemp";
+        targetColumn: "BatteryTemp";
+        conversionMethod: TemperatureConversion;
+    }
+
+    block StoreData oftype DatabaseStorage { 
+        databaseTableName: "temperatures"; 
+        databaseFilePath: "./temperatures.sqlite";
+    }
+
+    RetrieveData
+        -> DecompressData
+        -> LocateCSVFile
+        -> ParseTextData
+        -> InterpretCSVData
+        -> SelectDataColumns
+        -> ExcludeColumns
+        -> SetupDataTable
+        -> EnvironmentTemperatureConversion
+        -> DeviceBatteryTemperatureConversion
+        -> StoreData;
+}
