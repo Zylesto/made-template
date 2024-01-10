@@ -10,6 +10,12 @@ constraint MonthRangeConstraint oftype RangeConstraint {
     upperBound: 12;
 }
 
+constraint TemperatureAbsoluteZero oftype RangeConstraint {
+  lowerBound: -273.150;
+  lowerBoundInclusive: true;
+    
+}
+
 valuetype Month oftype integer {
     constraints: [MonthRangeConstraint];
 }
@@ -23,58 +29,59 @@ valuetype GermanBoolean oftype text {
 }
 
 pipeline SensorDataPipeline {
-    block DownloadData oftype HttpDownloader {
-        downloadUrl: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
+    block DownloadData oftype HttpExtractor {
+        url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
     }
 
-    block ExtractZipFile oftype ZipFileExtractor {
-        zipFormat: "zip";
+    block ExtractZipFile oftype ArchiveInterpreter {
+        archiveType: "zip";
     }
 
-    block SelectDataFile oftype CsvFileSelector {
-        csvPath: "data.csv";
+    block SelectDataFile oftype FilePicker {
+        path: "/data.csv";
     }
 
-    block ReadTextFile oftype TextFileReader {}
-    block ParseCsv oftype CsvParser { columnSeparator: ';';}
+    block ReadTextFile oftype TextFileInterpreter {}
+    block ParseCsv oftype CSVInterpreter { delimiter: ';';}
 
-    block ChooseColumns oftype ColumnSelector {
-        selectRange: range A1:G*;
+    block ChooseColumns oftype CellRangeSelector {
+        select: range A1:K*;
     }
 
-    block DiscardColumns oftype ColumnsDiscarder {
-        discardList: [column H, column I, column J, column K];
+    block DiscardColumns oftype ColumnDeleter {
+        delete: [column F, column G, column H, column I];
     }
 
-    block DataTableSetup oftype DataTableConfigurator {
-        hasHeader: false;
-        dataTableColumns: [
-            "DeviceID" oftype integer,
-            "Manufacturer" oftype text,
+    block DataTableSetup oftype TableInterpreter {
+        header: false;
+        columns: [
+            "Geraet" oftype integer,
+            "Hersteller" oftype text,
             "Model" oftype text,
-            "MonthUsed" oftype Month,
-            "AmbientTempCelsius" oftype decimal,
-            "BatteryTempCelsius" oftype decimal,
-            "DeviceActive" oftype GermanBoolean,
+            "Monat" oftype Month,
+            "Temperatur" oftype decimal,
+            "Batterietemperatur" oftype decimal,
+            "Geraet aktiv" oftype GermanBoolean,
         ];
     }
 
-    block ConvertAmbientTemp oftype DataTransformer {
-        inputColumn: "AmbientTempCelsius";
-        outputColumn: "AmbientTempCelsius";
-        transformationUse: ConvertCelsiusToFahrenheit;
+    block ConvertAmbientTemp oftype TableTransformer {
+        inputColumns: ["Temperatur"];
+        outputColumn: "Temperatur";
+        use: ConvertCelsiusToFahrenheit;
     }
 
-    block ConvertBatteryTemp oftype DataTransformer {
-        inputColumn: "BatteryTempCelsius";
-        outputColumn: "BatteryTempCelsius";
-        transformationUse: ConvertCelsiusToFahrenheit;
+    block ConvertBatteryTemp oftype TableTransformer {
+        inputColumns: ["Batterietemperatur"];
+        outputColumn: "Batterietemperatur";
+        use: ConvertCelsiusToFahrenheit;
     }
 
-    block LoadDataToDatabase oftype DatabaseUploader {
-        tableName: "temperatures"; 
-        databaseFile: "./temperatures.sqlite";
+    block LoadDataToDatabase oftype SQLiteLoader {
+        table: "temperatures"; 
+        file: "./temperatures.sqlite";
     }
+
 
     DownloadData
         -> ExtractZipFile
@@ -88,3 +95,4 @@ pipeline SensorDataPipeline {
         -> ConvertBatteryTemp
         -> LoadDataToDatabase;
 }
+
