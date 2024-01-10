@@ -1,90 +1,90 @@
-transform TemperatureConversion {
-  from celsiusTemperature oftype number;
-  to fahrenheitTemperature oftype number;
+transform ConvertCelsiusToFahrenheit {
+  from temperatureInCelsius oftype decimal;
+  to temperatureInFahrenheit oftype decimal;
 
-  fahrenheitTemperature: (celsiusTemperature * 9/5) + 32;
+  temperatureInFahrenheit: (temperatureInCelsius * 9/5) + 32;
 }
 
-constraint ValidMonthRange oftype IntervalConstraint {
-    minimumValue: 1;
-    maximumValue: 12;
+constraint MonthRangeConstraint oftype RangeConstraint {
+    lowerBound: 1;
+    upperBound: 12;
 }
 
-valuetype MonthIndex oftype integer {
-    restrictions: [ValidMonthRange];
+valuetype Month oftype integer {
+    constraints: [MonthRangeConstraint];
 }
 
-constraint AcceptableGermanAnswers oftype SelectionConstraint {
-    permittedValues: ["Ja", "Nein"];
+constraint TrueFalseGermanConstraint oftype AllowlistConstraint {
+    allowlist: ["Ja", "Nein"];
 }
 
-valuetype DeviceStatus oftype string {
-    restrictions: [AcceptableGermanAnswers];
+valuetype GermanBoolean oftype text {
+    constraints: [TrueFalseGermanConstraint];
 }
 
-pipeline DataProcessingPipeline {
-    block RetrieveData oftype WebRetrieval {
-        downloadLink: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
+pipeline SensorDataPipeline {
+    block DownloadData oftype HttpDownloader {
+        downloadUrl: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
     }
 
-    block DecompressData oftype UnzipHandler {
+    block ExtractZipFile oftype ZipFileExtractor {
         zipFormat: "zip";
     }
 
-    block LocateCSVFile oftype FileSelection {
-        relativePath: "data.csv";
+    block SelectDataFile oftype CsvFileSelector {
+        csvPath: "data.csv";
     }
 
-    block ParseTextData oftype TextDataParser {}
-    block InterpretCSVData oftype CSVParser { separator: ';';}
+    block ReadTextFile oftype TextFileReader {}
+    block ParseCsv oftype CsvParser { columnSeparator: ';';}
 
-    block SelectDataColumns oftype ColumnRangeSelector {
-        columnsToSelect: range A1:G*;
+    block ChooseColumns oftype ColumnSelector {
+        selectRange: range A1:G*;
     }
 
-    block ExcludeColumns oftype ColumnExclusion {
-        columnsToRemove: [column H, column I, column J, column K];
+    block DiscardColumns oftype ColumnsDiscarder {
+        discardList: [column H, column I, column J, column K];
     }
 
-    block SetupDataTable oftype DataTableConfiguration {
-        includeHeader: false;
-        dataTableStructure: [
+    block DataTableSetup oftype DataTableConfigurator {
+        hasHeader: false;
+        dataTableColumns: [
             "DeviceID" oftype integer,
-            "ManufacturerName" oftype string,
-            "ModelType" oftype string,
-            "UsageMonth" oftype MonthIndex,
-            "EnvironmentTemp" oftype number,
-            "BatteryTemp" oftype number,
-            "IsDeviceActive" oftype DeviceStatus,
+            "Manufacturer" oftype text,
+            "Model" oftype text,
+            "MonthUsed" oftype Month,
+            "AmbientTempCelsius" oftype decimal,
+            "BatteryTempCelsius" oftype decimal,
+            "DeviceActive" oftype GermanBoolean,
         ];
     }
 
-    block EnvironmentTemperatureConversion oftype DataConversion {
-        sourceColumn: "EnvironmentTemp";
-        targetColumn: "EnvironmentTemp";
-        conversionMethod: TemperatureConversion;
+    block ConvertAmbientTemp oftype DataTransformer {
+        inputColumn: "AmbientTempCelsius";
+        outputColumn: "AmbientTempCelsius";
+        transformationUse: ConvertCelsiusToFahrenheit;
     }
 
-    block DeviceBatteryTemperatureConversion oftype DataConversion {
-        sourceColumn: "BatteryTemp";
-        targetColumn: "BatteryTemp";
-        conversionMethod: TemperatureConversion;
+    block ConvertBatteryTemp oftype DataTransformer {
+        inputColumn: "BatteryTempCelsius";
+        outputColumn: "BatteryTempCelsius";
+        transformationUse: ConvertCelsiusToFahrenheit;
     }
 
-    block StoreData oftype DatabaseStorage { 
-        databaseTableName: "temperatures"; 
-        databaseFilePath: "./temperatures.sqlite";
+    block LoadDataToDatabase oftype DatabaseUploader {
+        tableName: "temperatures"; 
+        databaseFile: "./temperatures.sqlite";
     }
 
-    RetrieveData
-        -> DecompressData
-        -> LocateCSVFile
-        -> ParseTextData
-        -> InterpretCSVData
-        -> SelectDataColumns
-        -> ExcludeColumns
-        -> SetupDataTable
-        -> EnvironmentTemperatureConversion
-        -> DeviceBatteryTemperatureConversion
-        -> StoreData;
+    DownloadData
+        -> ExtractZipFile
+        -> SelectDataFile
+        -> ReadTextFile
+        -> ParseCsv
+        -> ChooseColumns
+        -> DiscardColumns
+        -> DataTableSetup
+        -> ConvertAmbientTemp
+        -> ConvertBatteryTemp
+        -> LoadDataToDatabase;
 }
