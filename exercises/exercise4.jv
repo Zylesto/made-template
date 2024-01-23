@@ -94,5 +94,5 @@ pipeline SensorDataPipeline {
         -> ConvertAmbientTemp
         -> ConvertBatteryTemp
         -> LoadDataToDatabase;
-}
+} 
 
